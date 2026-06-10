@@ -13,13 +13,9 @@
   <div class="header-left">
     <div>Book Roulette</div>
 
-    <button class="btn" id="nextBookBtn">
-      Next Book
-    </button>
-
-    <button class="btn" id="historyBtn">
-      History
-    </button>
+    <button class="btn" id="nextBookBtn">Next Book</button>
+    <button class="btn" id="historyBtn">History</button>
+    <button class="btn" id="scrollModeBtn">Scroll</button>
   </div>
 
   <nav>
@@ -49,14 +45,14 @@
       <div style="text-align: center;">
         <div id="loadingTitle" style="font-weight: bold; font-size: 1.3rem; margin-bottom: 0.5rem; color: var(--text);">Loading your book...</div>
         <div id="loadingStatus" style="font-size: 0.95rem; color: var(--muted); margin-bottom: 1.5rem;"></div>
-        
+
         <div id="loadingProgressContainer" style="display: none; width: 250px; margin: 0 auto;">
           <div style="background: var(--accent); border-radius: 4px; height: 4px; overflow: hidden; margin-bottom: 0.5rem;">
             <div id="loadingProgressFill" style="height: 100%; background: #4CAF50; width: 0%; transition: width 0.3s ease;"></div>
           </div>
           <div id="loadingProgressText" style="font-size: 0.75rem; color: var(--muted);"></div>
         </div>
-        
+
         <div id="loadingSteps" style="text-align: left; display: inline-block; font-size: 0.9rem; margin-top: 1.5rem;">
           <div id="step-theme" class="loading-step" style="display: none; margin: 0.4rem 0; color: var(--muted);">
             <span class="step-icon">○</span> <span class="step-text">Applying theme</span>
@@ -84,10 +80,7 @@
 
       <div class="progress-wrap">
         <div class="progress-bar">
-          <div
-            class="progress-fill"
-            id="progressFill"
-          ></div>
+          <div class="progress-fill" id="progressFill"></div>
         </div>
       </div>
 
@@ -97,7 +90,10 @@
 </main>
 
 <div class="history-panel" id="historyPanel">
-  <h2>History</h2>
+  <div class="history-panel-header">
+    <h2>History</h2>
+    <button class="btn history-close" id="historyClose">✕</button>
+  </div>
   <div id="historyList"></div>
 </div>
 
