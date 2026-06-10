@@ -60,6 +60,45 @@ function changeLineHeight(delta) {
   repaginate();
 }
 
+/* ─── HISTORY PANEL ─── */
+
+function isMobile() {
+  return window.matchMedia("(max-width: 640px)").matches;
+}
+
+function openHistoryPanel() {
+  const panel = document.getElementById("historyPanel");
+  if (isMobile()) {
+    panel.style.display = "block";
+    // force reflow so the transition fires
+    void panel.offsetHeight;
+    panel.classList.add("open");
+  } else {
+    panel.style.display = "block";
+  }
+  renderHistory();
+}
+
+function closeHistoryPanel() {
+  const panel = document.getElementById("historyPanel");
+  if (isMobile()) {
+    panel.classList.remove("open");
+    // wait for slide-down transition before hiding
+    panel.addEventListener("transitionend", () => {
+      if (!panel.classList.contains("open")) panel.style.display = "none";
+    }, { once: true });
+  } else {
+    panel.style.display = "none";
+  }
+}
+
+function isHistoryPanelOpen() {
+  const panel = document.getElementById("historyPanel");
+  return isMobile()
+    ? panel.classList.contains("open")
+    : panel.style.display === "block";
+}
+
 function renderHistory() {
   const list = document.getElementById("historyList");
   const history = getBookHistory();
@@ -86,7 +125,7 @@ function renderHistory() {
     goBackBtn.textContent = "Go back";
     goBackBtn.onclick = async () => {
       console.log("[HISTORY] Go back clicked for book:", book.id);
-      document.getElementById("historyPanel").style.display = "none";
+      closeHistoryPanel();
       showLoadingScreen("Loading your book...", "📚 Restoring your place…");
       setStepActive("book");
       try {
@@ -131,7 +170,6 @@ function showLoadingScreen(title = "Loading your book...", status = "") {
   if (spread)           spread.style.display           = "none";
   if (controls)         controls.style.display         = "none";
 
-  // Reset all steps to hidden
   document.querySelectorAll(".loading-step").forEach(s => {
     s.style.display    = "none";
     s.style.color      = "var(--muted)";
@@ -163,8 +201,7 @@ function hideLoadingScreen() {
 async function loadNextBook() {
   console.log("[EVENT] loadNextBook called");
 
-  document.getElementById("historyPanel").style.display = "none";
-
+  closeHistoryPanel();
   showLoadingScreen("Loading your book...", "Fetching a new book…");
   setStepActive("book");
 
@@ -201,11 +238,10 @@ document.getElementById("lineDecrease").onclick = () => changeLineHeight(-0.1);
 document.getElementById("nextPage").onclick     = nextPage;
 document.getElementById("prevPage").onclick     = prevPage;
 document.getElementById("nextBookBtn").onclick  = loadNextBook;
+document.getElementById("historyClose").onclick  = closeHistoryPanel;
+document.getElementById("scrollModeBtn").onclick  = () => setScrollMode(!scrollMode);
 document.getElementById("historyBtn").onclick   = () => {
-  const panel  = document.getElementById("historyPanel");
-  const isOpen = panel.style.display === "block";
-  panel.style.display = isOpen ? "none" : "block";
-  if (!isOpen) renderHistory();
+  isHistoryPanelOpen() ? closeHistoryPanel() : openHistoryPanel();
 };
 
 /* ─── STARTUP ─── */
