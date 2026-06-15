@@ -159,17 +159,12 @@ function initPagination(config) {
   detectLayout();
 
   // Restore scroll mode preference
-  scrollMode = isMobileViewport() && localStorage.getItem("scrollMode") === "true";
+  scrollMode = localStorage.getItem("scrollMode") === "true";
   applyScrollModeUI();
 
   window.addEventListener("resize", () => {
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(() => {
-      // If we've crossed the mobile breakpoint, recheck scroll mode
-      if (!isMobileViewport() && scrollMode) {
-        // Force page mode on desktop regardless of saved pref
-        setScrollMode(false, /* save= */ false);
-      }
       repaginate();
     }, RESIZE_DELAY);
   });
@@ -342,7 +337,7 @@ function setBook(book) {
 
   console.log("[STARTUP] Total words:", totalWords, "Starting at word index:", wordIndex);
 
-  if (scrollMode && isMobileViewport()) {
+  if (scrollMode) {
     // Rebuild scroll view for new book
     if (scrollEl) {
       scrollEl.remove();
@@ -368,7 +363,7 @@ function repaginate() {
     return;
   }
 
-  if (scrollMode && isMobileViewport()) {
+  if (scrollMode) {
     // Nothing to repaginate in scroll mode; just refresh scroll position
     return;
   }
