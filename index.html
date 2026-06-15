@@ -9,31 +9,35 @@
 
 <body>
 
-<header>
-  <div class="header-left">
-    <div>Book Roulette</div>
+<!-- Hamburger menu button — always visible, top-left -->
+<button class="menu-btn" id="menuBtn" aria-label="Menu">☰</button>
 
-    <button class="btn" id="nextBookBtn">Next Book</button>
-    <button class="btn" id="historyBtn">History</button>
-    <button class="btn" id="scrollModeBtn">Scroll</button>
+<!-- Dropdown menu popup -->
+<div class="menu-popup" id="menuPopup">
+  <div class="menu-section">
+    <button class="menu-item-btn" id="nextBookBtn">Next Book</button>
+    <button class="menu-item-btn" id="historyBtn">History</button>
+    <button class="menu-item-btn" id="scrollModeBtn">Scroll</button>
+    <button class="menu-item-btn" id="themeToggle">☀️</button>
   </div>
-
-  <nav>
-    <button class="btn" id="themeToggle">☀️</button>
-
-    <div class="control-group">
+  <div class="menu-divider"></div>
+  <div class="menu-section">
+    <div class="menu-label">Font size</div>
+    <div class="menu-row">
+      <button class="btn" id="fontDecrease">A−</button>
+      <span class="value" id="fontValue">18</span>
       <button class="btn" id="fontIncrease">A+</button>
-      <div class="value" id="fontValue">18</div>
-      <button class="btn" id="fontDecrease">A-</button>
     </div>
-
-    <div class="control-group">
+  </div>
+  <div class="menu-section">
+    <div class="menu-label">Line height</div>
+    <div class="menu-row">
+      <button class="btn" id="lineDecrease">≡−</button>
+      <span class="value" id="lineValue">1.7</span>
       <button class="btn" id="lineIncrease">≡+</button>
-      <div class="value" id="lineValue">1.7</div>
-      <button class="btn" id="lineDecrease">≡-</button>
     </div>
-  </nav>
-</header>
+  </div>
+</div>
 
 <main>
   <div class="reader">
@@ -77,13 +81,11 @@
 
     <div class="controls" style="display: none;">
       <button class="btn" id="prevPage">Prev</button>
-
       <div class="progress-wrap">
         <div class="progress-bar">
           <div class="progress-fill" id="progressFill"></div>
         </div>
       </div>
-
       <button class="btn" id="nextPage">Next</button>
     </div>
   </div>
