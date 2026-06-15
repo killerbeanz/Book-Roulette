@@ -1,20 +1,21 @@
 console.log("[STARTUP] app.js loaded");
 
-const theme = localStorage.getItem("theme");
-console.log("[STARTUP] Theme from storage:", theme || "none (will use light)");
+/* ─── THEME ─── */
 
-function applyTheme(theme) {
-  const isDark = theme === "dark";
+function applyTheme(t) {
+  const isDark = t === "dark";
   document.body.classList.toggle("dark", isDark);
-  document.getElementById("themeToggle").innerText = isDark ? "🌙" : "☀️";
-  localStorage.setItem("theme", theme);
+  const btn = document.getElementById("themeToggle");
+  if (btn) btn.textContent = isDark ? "☀️" : "🌙";
+  localStorage.setItem("theme", t);
 }
 
 function toggleTheme() {
-  console.log("[EVENT] toggleTheme called");
   const current = localStorage.getItem("theme") || "light";
   applyTheme(current === "light" ? "dark" : "light");
 }
+
+/* ─── STYLE VARS ─── */
 
 function getStyleVar(key) {
   return getComputedStyle(document.documentElement).getPropertyValue(key).trim();
@@ -34,14 +35,12 @@ function loadPreferences() {
   console.log("[STARTUP] loadPreferences called");
   const fs = localStorage.getItem("--font-size");
   const lh = localStorage.getItem("--line-height");
-  console.log("[STARTUP] Preferences - Font size:", fs || "default", "Line height:", lh || "default");
   if (fs) document.documentElement.style.setProperty("--font-size", fs);
   if (lh) document.documentElement.style.setProperty("--line-height", lh);
   refreshUI();
 }
 
 function changeFont(delta) {
-  console.log("[EVENT] changeFont called with delta:", delta);
   let size = parseInt(getStyleVar("--font-size"));
   size = Math.max(12, Math.min(40, size + delta));
   updateStyleVar("--font-size", size + "px");
@@ -51,13 +50,43 @@ function changeFont(delta) {
 }
 
 function changeLineHeight(delta) {
-  console.log("[EVENT] changeLineHeight called with delta:", delta);
   let lh = parseFloat(getStyleVar("--line-height"));
   lh = Math.max(1.2, Math.min(3, lh + delta));
   updateStyleVar("--line-height", lh);
   refreshUI();
   void document.body.offsetHeight;
   repaginate();
+}
+
+/* ─── HAMBURGER MENU ─── */
+
+function openMenu() {
+  document.getElementById("menuPopup").classList.add("open");
+}
+
+function closeMenu() {
+  document.getElementById("menuPopup").classList.remove("open");
+}
+
+function isMenuOpen() {
+  return document.getElementById("menuPopup").classList.contains("open");
+}
+
+// Close menu when clicking outside
+document.addEventListener("click", e => {
+  if (!isMenuOpen()) return;
+  const popup = document.getElementById("menuPopup");
+  const btn   = document.getElementById("menuBtn");
+  if (!popup.contains(e.target) && !btn.contains(e.target)) {
+    closeMenu();
+  }
+});
+
+/* ─── SCROLL MODE LABEL ─── */
+
+function updateScrollModeBtn() {
+  const btn = document.getElementById("scrollModeBtn");
+  if (btn) btn.textContent = scrollMode ? "Pages" : "Scroll";
 }
 
 /* ─── HISTORY PANEL ─── */
@@ -70,7 +99,6 @@ function openHistoryPanel() {
   const panel = document.getElementById("historyPanel");
   if (isMobile()) {
     panel.style.display = "block";
-    // force reflow so the transition fires
     void panel.offsetHeight;
     panel.classList.add("open");
   } else {
@@ -83,7 +111,6 @@ function closeHistoryPanel() {
   const panel = document.getElementById("historyPanel");
   if (isMobile()) {
     panel.classList.remove("open");
-    // wait for slide-down transition before hiding
     panel.addEventListener("transitionend", () => {
       if (!panel.classList.contains("open")) panel.style.display = "none";
     }, { once: true });
@@ -159,16 +186,18 @@ function renderHistory() {
   });
 }
 
-/* ─── LOADING SCREEN HELPERS ─── */
+/* ─── LOADING SCREEN ─── */
 
 function showLoadingScreen(title = "Loading your book...", status = "") {
   const loadingContainer = document.getElementById("loadingContainer");
   const spread           = document.querySelector(".spread");
   const controls         = document.querySelector(".controls");
+  const scrollContainer  = document.getElementById("scrollContainer");
 
   if (loadingContainer) loadingContainer.style.display = "flex";
   if (spread)           spread.style.display           = "none";
   if (controls)         controls.style.display         = "none";
+  if (scrollContainer)  scrollContainer.style.display  = "none";
 
   document.querySelectorAll(".loading-step").forEach(s => {
     s.style.display    = "none";
@@ -188,19 +217,25 @@ function hideLoadingScreen() {
   const loadingContainer = document.getElementById("loadingContainer");
   const spread           = document.querySelector(".spread");
   const controls         = document.querySelector(".controls");
+  const scrollContainer  = document.getElementById("scrollContainer");
 
   hideLoadingProgress();
 
   if (loadingContainer) loadingContainer.style.display = "none";
-  if (spread)           spread.style.display           = "flex";
-  if (controls)         controls.style.display         = "flex";
+
+  if (scrollMode) {
+    if (scrollContainer) scrollContainer.style.display = "block";
+  } else {
+    if (spread)   spread.style.display   = "flex";
+    if (controls) controls.style.display = "flex";
+  }
 }
 
 /* ─── NEXT BOOK ─── */
 
 async function loadNextBook() {
   console.log("[EVENT] loadNextBook called");
-
+  closeMenu();
   closeHistoryPanel();
   showLoadingScreen("Loading your book...", "Fetching a new book…");
   setStepActive("book");
@@ -230,36 +265,38 @@ async function loadNextBook() {
 
 /* ─── EVENT BINDINGS ─── */
 
-document.getElementById("themeToggle").onclick  = toggleTheme;
+document.getElementById("menuBtn").onclick    = () => isMenuOpen() ? closeMenu() : openMenu();
+document.getElementById("themeToggle").onclick = () => { toggleTheme(); };
 document.getElementById("fontIncrease").onclick = () => changeFont(2);
 document.getElementById("fontDecrease").onclick = () => changeFont(-2);
 document.getElementById("lineIncrease").onclick = () => changeLineHeight(0.1);
 document.getElementById("lineDecrease").onclick = () => changeLineHeight(-0.1);
-document.getElementById("nextPage").onclick     = nextPage;
-document.getElementById("prevPage").onclick     = prevPage;
-document.getElementById("nextBookBtn").onclick  = loadNextBook;
-document.getElementById("historyClose").onclick  = closeHistoryPanel;
-document.getElementById("scrollModeBtn").onclick  = () => setScrollMode(!scrollMode);
-document.getElementById("historyBtn").onclick   = () => {
+document.getElementById("nextPage").onclick    = nextPage;
+document.getElementById("prevPage").onclick    = prevPage;
+document.getElementById("nextBookBtn").onclick = () => { loadNextBook(); };
+document.getElementById("historyBtn").onclick  = () => {
+  closeMenu();
   isHistoryPanelOpen() ? closeHistoryPanel() : openHistoryPanel();
 };
+document.getElementById("scrollModeBtn").onclick = () => {
+  setScrollMode(!scrollMode);
+  updateScrollModeBtn();
+};
+document.getElementById("historyClose").onclick = closeHistoryPanel;
 
 /* ─── STARTUP ─── */
 
 window.onload = async function () {
   console.log("[STARTUP] === PAGE STARTUP BEGIN ===");
 
-  console.log("[STARTUP] Step 1: Applying theme");
   setStepActive("theme");
   applyTheme(localStorage.getItem("theme") || "light");
   markStepComplete("theme");
 
-  console.log("[STARTUP] Step 2: Loading user preferences");
   setStepActive("preferences");
   loadPreferences();
   markStepComplete("preferences");
 
-  console.log("[STARTUP] Step 3: Initializing pagination");
   setStepActive("pagination");
   initPagination({
     leftPageEl:  document.getElementById("leftPage"),
@@ -269,7 +306,9 @@ window.onload = async function () {
   });
   markStepComplete("pagination");
 
-  console.log("[STARTUP] Step 4: Restoring or loading book");
+  // Sync scroll button label after initPagination sets scrollMode
+  updateScrollModeBtn();
+
   setStepActive("book");
   setLoadingStatus("Loading your book...", "Fetching content...", true);
   showLoadingProgress("Preparing book...");
@@ -296,8 +335,6 @@ window.onload = async function () {
   setLoadingProgress(90);
   markStepComplete("book");
   setLoadingProgress(100);
-
-  console.log("[STARTUP] Step 5: Hiding loading UI");
   hideLoadingScreen();
 
   console.log("[STARTUP] === PAGE STARTUP COMPLETE ===");
