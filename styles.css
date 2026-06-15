@@ -24,30 +24,88 @@ body {
   flex-direction: column;
 }
 
-/* ── HEADER ── */
+/* ── HAMBURGER BUTTON ── */
 
-header {
-  padding: 0.75rem 2rem;
-  border-bottom: 1px solid var(--accent);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-shrink: 0;
+.menu-btn {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 200;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  font-size: 1.2rem;
+  padding: 0.35rem 0.6rem;
+  cursor: pointer;
+  line-height: 1;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
+/* ── MENU POPUP ── */
+
+.menu-popup {
+  display: none;
+  position: fixed;
+  top: 3.2rem;
+  left: 0.75rem;
+  z-index: 199;
+  background: var(--bg);
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  padding: 0.5rem;
+  min-width: 100px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.12);
 }
 
-nav {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+.menu-popup.open {
+  display: block;
 }
 
-/* ── BUTTONS ── */
+.menu-section {
+  padding: 0.3rem 0;
+}
+
+.menu-divider {
+  height: 1px;
+  background: var(--accent);
+  margin: 0.3rem 0;
+}
+
+.menu-item-btn {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  color: var(--text);
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+  font-family: Georgia, serif;
+  cursor: pointer;
+}
+
+.menu-item-btn:hover {
+  background: var(--accent);
+}
+
+.menu-label {
+  font-size: 0.75rem;
+  color: var(--muted);
+  padding: 0.25rem 0.75rem 0.1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.menu-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.75rem;
+}
+
+/* ── SHARED BUTTONS ── */
 
 .btn {
   border: 1px solid var(--accent);
@@ -60,8 +118,10 @@ nav {
 }
 
 .value {
-  font-size: 0.75rem;
+  font-size: 0.85rem;
   color: var(--muted);
+  min-width: 2rem;
+  text-align: center;
 }
 
 /* ── MAIN / READER ── */
@@ -90,6 +150,8 @@ main {
   font-size: 1.5rem;
   margin-bottom: 0.2rem;
   flex-shrink: 0;
+  /* leave room for the hamburger button */
+  padding-left: 3rem;
 }
 
 .author {
@@ -97,6 +159,7 @@ main {
   margin-bottom: 1rem;
   font-size: 0.9rem;
   flex-shrink: 0;
+  padding-left: 3rem;
 }
 
 .spread {
@@ -155,6 +218,24 @@ main {
   flex-direction: column;
   align-items: center;
   gap: 2px;
+}
+
+/* ── SCROLL MODE ── */
+
+.scroll-container {
+  display: none;
+  flex: 1;
+  overflow-y: auto;
+  font-size: var(--font-size);
+  line-height: var(--line-height);
+  padding-right: 0.5rem;
+  -webkit-overflow-scrolling: touch;
+  min-height: 0;
+}
+
+.scroll-para {
+  margin: 0 0 1.2em;
+  white-space: pre-wrap;
 }
 
 /* ── HISTORY PANEL — desktop: right sidebar ── */
@@ -264,82 +345,28 @@ main {
   50% { opacity: 0.7; transform: scale(0.95); }
 }
 
-
-/* ── SCROLL MODE ── */
-
-#scrollModeBtn {
-  display: none;
-}
-
-
-.scroll-container {
-  display: none;
-  flex: 1;
-  overflow-y: auto;
-  font-size: var(--font-size);
-  line-height: var(--line-height);
-  padding-right: 0.5rem;
-  /* smooth momentum scrolling on iOS */
-  -webkit-overflow-scrolling: touch;
-}
-
-.scroll-para {
-  margin: 0 0 1.2em;
-  white-space: pre-wrap;
-}
-
 /* ════════════════════════════════════════
    MOBILE  (max-width: 640px)
    ════════════════════════════════════════ */
 
 @media (max-width: 640px) {
 
-  /* Header: two rows stacked */
-  header {
-    padding: 0.6rem 1rem;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.5rem;
-  }
-
-  .header-left {
-    gap: 0.5rem;
-  }
-
-  /* Hide the "Book Roulette" wordmark to save space */
-  .header-left > div:first-child {
-    display: none;
-  }
-
-  nav {
-    gap: 0.5rem;
-    justify-content: flex-end;
-  }
-
-  .btn {
-    padding: 0.35rem 0.55rem;
-    font-size: 0.75rem;
-  }
-
-  #scrollModeBtn {
-    display: block;
-  }
-
-  /* Reader: tighter padding */
   .reader {
-    padding: 0.75rem 1rem 0.75rem;
+    padding: 0.75rem 1rem;
   }
 
   .title {
     font-size: 1.1rem;
+    padding-left: 3rem;
   }
 
   .author {
     font-size: 0.8rem;
     margin-bottom: 0.5rem;
+    padding-left: 3rem;
   }
 
-  /* History panel: bottom sheet instead of right sidebar */
+  /* History panel: bottom sheet */
   .history-panel {
     top: auto;
     bottom: 0;
@@ -351,7 +378,6 @@ main {
     border-top: 1px solid var(--accent);
     border-radius: 16px 16px 0 0;
     padding: 1rem 1rem 2rem;
-    /* slide-up animation */
     transform: translateY(100%);
     transition: transform 0.25s ease;
   }
@@ -360,7 +386,6 @@ main {
     transform: translateY(0);
   }
 
-  /* Always show the close button on mobile */
   .history-close {
     display: flex !important;
   }
